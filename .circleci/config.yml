@@ -1,0 +1,21 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/phoenix_blog
+    docker:
+      - image: elixir:1.5
+        environment:
+        - PG_HOST=localhost
+        - MIX_ENV=test
+      - image: postgres:10-alpine
+        environment:
+          POSTGRES_USER: postgres
+    steps:
+      - checkout
+      - run: cd phoenix_blog && mix local.hex --force
+      - run: cd phoenix_blog && mix local.rebar --force
+      - run: cd phoenix_blog && mix archive.install --force https://github.com/phoenixframework/archives/raw/master/phx_new.ez
+      - run: cd phoenix_blog && mix deps.get
+      - run: cd phoenix_blog && mix ecto.create
+      - run: cd phoenix_blog && mix ecto.migrate
+      - run: cd phoenix_blog && mix test
